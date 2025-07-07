@@ -17,7 +17,7 @@ def is_enabled(value, default):
 SESSION = environ.get('SESSION', 'Media_search')
 API_ID = int(environ.get('API_ID', 16536417))
 API_HASH = environ.get('API_HASH', "f6e58a549da642d7b765744a2f82c6d9")
-BOT_TOKEN = environ.get('BOT_TOKEN', "5731679827:AAHKNhAnIWPi5GvirFZ0vVQlbIzi6ph4-JE")
+BOT_TOKEN = environ.get('BOT_TOKEN', "5")
 
 
 # Bot settings
@@ -54,8 +54,8 @@ COLLECTION_NAME = environ.get('COLLECTION_NAME', 'NewStart')
 
 # Others
 VERIFY = bool(environ.get('VERIFY', False))
-SHORTLINK_URL = environ.get('SHORTLINK_URL', 'shortner.in')
-SHORTLINK_API = environ.get('SHORTLINK_API', '87c8ba249b7397e01f0f027935e12ddb86c60732')
+SHORTLINK_URL = environ.get('SHORTLINK_URL', 'adrinolinks.in')
+SHORTLINK_API = environ.get('SHORTLINK_API', '5e84201806979b3ab22725bd996d187a20ca7f8c')
 IS_SHORTLINK = bool(environ.get('IS_SHORTLINK', True))
 DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '0').split()]
 MAX_B_TN = environ.get("MAX_B_TN", "10")
