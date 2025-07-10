@@ -20,7 +20,6 @@ from Script import script
 from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
-
 import pytz
 
 class Bot(Client):
@@ -76,7 +75,7 @@ app = Bot()
 # ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
 
 def ping_self():
-    url = "https://transparent-ribbon-target.glitch.me/alive"
+    url = "https://newauto-15.onrender.com/alive"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -88,17 +87,27 @@ def ping_self():
 
 flask_app = Flask(__name__)
 
-@flask_app.route('/')
+@flask_app.route('/alive')
 def alive():
     return "I am alive!"
 
-def run_flask():
-    port = int(os.environ.get("PORT", 5000))
-    try:
-        flask_app.run(host='0.0.0.0', port=port)
-    except OSError as e:
-        logging.error(f"Flask failed to start: {e}")
+@flask_app.route('/webhook', methods=['POST'])
+def webhook():
+    update = request.get_json()
+    if update and app:  # Ensure app exists before processing update
+        logging.info(f"Received update: {update}")  # Debugging
+        app.process_update(update)
+    return "OK", 200  # Required response for Telegram
 
+def run_flask():
+    try:
+        flask_app.run(host='0.0.0.0', port=10002)
+    except OSError as e:
+        if "Address already in use" in str(e):
+            logging.error("Port 10002 in use! Trying alternate port 5000...")
+            flask_app.run(host='0.0.0.0', port=5000)
+        else:
+            raise
 
 async def main():
     await app.start()
@@ -106,13 +115,9 @@ async def main():
 
 
 if __name__ == "__main__":
-    # Start Flask in a separate thread.
+    # Start Flask in a separate thread
     Thread(target=run_flask).start()
     
     # Start the bot
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
-scheduler = BackgroundScheduler()
-scheduler.add_job(ping_self, "interval", minutes=1)
-scheduler.start()
-
