@@ -28,6 +28,7 @@ fuzzywuzzy
 wheel
 gunicorn==20.1.0
 werkzeug==2.0.2
+CountryInfo
 Flask
 itsdangerous==2.0.1
 python-Levenshtein
