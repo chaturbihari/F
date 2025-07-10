@@ -80,8 +80,10 @@ async def main():
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    # Run Flask in background thread
+    # Start Flask in background
     Thread(target=run_flask).start()
 
-    # Start Pyrogram bot safely
-    asyncio.run(main())
+    # Use consistent event loop across all async calls
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
