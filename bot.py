@@ -23,6 +23,12 @@ from aiohttp import web
 from datetime import date, datetime 
 import pytz
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()]
+)
+
 logging.info(f"🔧 Python Version: {sys.version}")
 
 class Bot(Client):
