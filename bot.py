@@ -1,4 +1,5 @@
 import logging
+import sys
 import logging.config
 import asyncio
 import os
@@ -21,6 +22,8 @@ from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
 import pytz
+
+logging.info(f"🔧 Python Version: {sys.version}")
 
 class Bot(Client):
     def __init__(self):
