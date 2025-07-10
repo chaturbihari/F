@@ -121,6 +121,42 @@ def run_flask():
 async def main():
     await app.start()
     await asyncio.Event().wait()
+    
+# ========== clear.py logic merged here ==========
+def clear_cache_and_sessions():
+    folders_to_clear = ['.cache', '__pycache__', '.git']
+    for folder in folders_to_clear:
+        logging.info(f"Checking folder: {folder}")
+        if os.path.exists(folder):
+            try:
+                shutil.rmtree(folder)
+                logging.info(f"✅ Cleared folder: {folder}")
+            except Exception as e:
+                logging.error(f"❌ Error clearing {folder}: {e}")
+        else:
+            logging.warning(f"⚠️ Folder not found: {folder}")
+
+def self_ping():
+    while True:
+        try:
+            logging.info("🌐 Self-pinging...")
+            requests.get("https://f-njat.onrender.com")  # Update if needed
+            logging.info("✅ Ping successful")
+        except Exception as e:
+            logging.error(f"❌ Ping failed: {e}")
+        time.sleep(60)
+
+def start_clear_tasks():
+    # Start scheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(clear_cache_and_sessions, 'interval', minutes=60)
+    scheduler.start()
+
+    # Start self-ping
+    Thread(target=self_ping, daemon=True).start()
+
+# Start cache-clear + ping before starting bot
+start_clear_tasks()
 
 
 if __name__ == "__main__":
