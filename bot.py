@@ -119,6 +119,5 @@ if __name__ == "__main__":
     Thread(target=run_flask).start()
     
     # Start the bot
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
+loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
