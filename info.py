@@ -54,8 +54,8 @@ COLLECTION_NAME = environ.get('COLLECTION_NAME', 'NewStart')
 
 # Others
 VERIFY = bool(environ.get('VERIFY', False))
-SHORTLINK_URL = environ.get('SHORTLINK_URL', 'adrinolinks.in')
-SHORTLINK_API = environ.get('SHORTLINK_API', '5e84201806979b3ab22725bd996d187a20ca7f8c')
+SHORTLINK_URL = environ.get('SHORTLINK_URL', 'shortner.in')
+SHORTLINK_API = environ.get('SHORTLINK_API', '87c8ba249b7397e01f0f027935e12ddb86c60732')
 IS_SHORTLINK = bool(environ.get('IS_SHORTLINK', True))
 DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '0').split()]
 MAX_B_TN = environ.get("MAX_B_TN", "10")
