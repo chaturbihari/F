@@ -25,7 +25,7 @@ def self_ping():
         try:
             print("🌐 Self-pinging...")
             # Replace with your actual hosted URL if available
-            requests.get("https://f-87f9.onrender.com")  # or your deployed URL
+            requests.get("https://f-1-5oib.onrender.com")  # or your deployed URL
             print("✅ Ping successful")
         except Exception as e:
             print(f"❌ Ping failed: {e}")
