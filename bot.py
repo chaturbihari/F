@@ -22,6 +22,8 @@ from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
 import pytz
+import shutil
+
 
 logging.basicConfig(
     level=logging.INFO,
