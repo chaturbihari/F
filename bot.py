@@ -92,14 +92,6 @@ flask_app = Flask(__name__)
 def alive():
     return "I am alive!"
 
-@flask_app.route('/webhook', methods=['POST'])
-def webhook():
-    update = request.get_json()
-    if update and app:  # Ensure app exists before processing update
-        logging.info(f"Received update: {update}")  # Debugging
-        app.process_update(update)
-    return "OK", 200  # Required response for Telegram
-
 def run_flask():
     port = int(os.environ.get("PORT", 5000))
     try:
