@@ -1,4 +1,6 @@
+
 import logging
+import sys
 import logging.config
 import asyncio
 import os
@@ -20,8 +22,17 @@ from Script import script
 from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
-from pyrogram import Client, filters
 import pytz
+import shutil
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()]
+)
+
+logging.info(f"🔧 Python Version: {sys.version}")
 
 class Bot(Client):
     def __init__(self):
@@ -76,7 +87,7 @@ app = Bot()
 # ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
 
 def ping_self():
-    url = "https://f-njat.onrender.com/alive"
+    url = "https://newauto-15.onrender.com/alive"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -110,22 +121,50 @@ def run_flask():
         else:
             raise
 
-@Client.on_message()
-async def all_messages(client, message):
-    print(f"Received message: {message.text}")
-
-
 async def main():
     await app.start()
     await asyncio.Event().wait()
-
-
-
-
-if __name__ == "__main__":
-    # Start Flask in a separate thread
-    Thread(target=run_flask).start()
     
-    # Start the bot
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+# ========== clear.py logic merged here ==========
+def clear_cache_and_sessions():
+    folders_to_clear = ['.cache', '__pycache__', '.git']
+    for folder in folders_to_clear:
+        logging.info(f"Checking folder: {folder}")
+        if os.path.exists(folder):
+            try:
+                shutil.rmtree(folder)
+                logging.info(f"✅ Cleared folder: {folder}")
+            except Exception as e:
+                logging.error(f"❌ Error clearing {folder}: {e}")
+        else:
+            logging.warning(f"⚠️ Folder not found: {folder}")
+
+def self_ping():
+    while True:
+        try:
+            logging.info("🌐 Self-pinging...")
+            requests.get("https://f-njat.onrender.com")  # Update if needed
+            logging.info("✅ Ping successful")
+        except Exception as e:
+            logging.error(f"❌ Ping failed: {e}")
+        time.sleep(60)
+
+def start_clear_tasks():
+    # Start scheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(clear_cache_and_sessions, 'interval', minutes=60)
+    scheduler.start()
+
+    # Start self-ping
+    Thread(target=self_ping, daemon=True).start()
+
+# Start cache-clear + ping before starting bot
+if __name__ == "__main__":
+    # Clear + Ping Tasks
+    start_clear_tasks()
+
+    # Run Flask server in thread
+    Thread(target=run_flask).start()
+
+    # Run Bot
+    asyncio.run(main())
