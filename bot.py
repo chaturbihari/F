@@ -20,6 +20,7 @@ from Script import script
 from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
+from pyrogram import Client, filters
 import pytz
 
 class Bot(Client):
@@ -109,9 +110,16 @@ def run_flask():
         else:
             raise
 
+@Client.on_message()
+async def all_messages(client, message):
+    print(f"Received message: {message.text}")
+
+
 async def main():
     await app.start()
     await asyncio.Event().wait()
+
+
 
 
 if __name__ == "__main__":
