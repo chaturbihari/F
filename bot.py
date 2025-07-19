@@ -1,30 +1,24 @@
 import logging
 import sys
-import logging.config
 import asyncio
 import os
-import time
 import requests
 from flask import Flask, request
 from threading import Thread
-from aiohttp import ClientSession
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from database.ia_filterdb import Media
 from database.users_chats_db import db
-from apscheduler.schedulers.background import BackgroundScheduler
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_STR, LOG_CHANNEL, PORT
 from utils import temp
 from typing import Union, Optional, AsyncGenerator
-from pyrogram import types
+from pyrogram import types, filters
 from Script import script
-from plugins import web_server
-from aiohttp import web
-from datetime import date, datetime 
+from datetime import date, datetime
 import pytz
 import shutil
 
-
+# Logging setup
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -33,6 +27,7 @@ logging.basicConfig(
 
 logging.info(f"🔧 Python Version: {sys.version}")
 
+# Pyrogram Bot Class
 class Bot(Client):
     def __init__(self):
         super().__init__(
@@ -80,22 +75,10 @@ class Bot(Client):
                 yield message
                 current += 1
 
-# Define the bot instance at the top to prevent NameError
+# Initialize bot
 app = Bot()
 
-# ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
-
-def ping_self():
-    url = "https://newauto-15.onrender.com/alive"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            logging.info("Ping successful!")
-        else:
-            logging.error(f"Ping failed with status code {response.status_code}")
-    except Exception as e:
-        logging.error(f"Ping failed with exception: {e}")
-
+# Flask app
 flask_app = Flask(__name__)
 
 @flask_app.route('/alive')
@@ -105,10 +88,10 @@ def alive():
 @flask_app.route('/webhook', methods=['POST'])
 def webhook():
     update = request.get_json()
-    if update and app:  # Ensure app exists before processing update
-        logging.info(f"Received update: {update}")  # Debugging
+    if update and app:
+        logging.info(f"Received update: {update}")
         app.process_update(update)
-    return "OK", 200  # Required response for Telegram
+    return "OK", 200
 
 def run_flask():
     try:
@@ -120,11 +103,8 @@ def run_flask():
         else:
             raise
 
-async def main():
-    await app.start()
-    await asyncio.Event().wait()
-    
-# ========== clear.py logic merged here ==========
+# ✅ These used to be scheduled — now converted to commands:
+
 def clear_cache_and_sessions():
     folders_to_clear = ['.cache', '__pycache__', '.git']
     for folder in folders_to_clear:
@@ -139,35 +119,38 @@ def clear_cache_and_sessions():
             logging.warning(f"⚠️ Folder not found: {folder}")
 
 def self_ping():
-    while True:
-        try:
-            logging.info("🌐 Self-pinging...")
-            requests.get("https://f-njat.onrender.com")  # Update if needed
+    try:
+        logging.info("🌐 Self-pinging...")
+        response = requests.get("https://f-njat.onrender.com", timeout=10)
+        if response.status_code == 200:
             logging.info("✅ Ping successful")
-        except Exception as e:
-            logging.error(f"❌ Ping failed: {e}")
-        time.sleep(60)
+        else:
+            logging.warning(f"⚠️ Ping failed: {response.status_code}")
+    except Exception as e:
+        logging.error(f"❌ Ping error: {e}")
 
-def start_clear_tasks():
-    # Start scheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(clear_cache_and_sessions, 'interval', minutes=60)
-    scheduler.start()
+# ✅ Add manual command to clear cache via Telegram
+@app.on_message(filters.command("clear_cache") & filters.user([LOG_CHANNEL]))
+async def clear_cache_command(_, message):
+    clear_cache_and_sessions()
+    await message.reply("✅ Cache folders cleared.")
 
-    # Start self-ping
-    Thread(target=self_ping, daemon=True).start()
+# ✅ Add manual command to trigger self-ping via Telegram
+@app.on_message(filters.command("self_ping") & filters.user([LOG_CHANNEL]))
+async def self_ping_command(_, message):
+    self_ping()
+    await message.reply("✅ Self-ping triggered.")
 
-# Start cache-clear + ping before starting bot
-start_clear_tasks()
-
+# Main bot logic
+async def main():
+    await app.start()
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    # Start Flask
+    # Start Flask in a thread
     Thread(target=run_flask).start()
 
-    # Use same event loop across everything
+    # Use consistent event loop
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
-
-
