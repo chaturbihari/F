@@ -162,9 +162,6 @@ start_clear_tasks()
 
 
 if __name__ == "__main__":
-    # Start Flask in a separate thread
     Thread(target=run_flask).start()
-    
-    # Start the bot
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+    asyncio.run(main())
+
