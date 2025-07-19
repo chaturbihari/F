@@ -1,33 +1,27 @@
 import logging
-import sys
+import logging.config
 import asyncio
 import os
+import time
 import requests
 from flask import Flask, request
 from threading import Thread
+from aiohttp import ClientSession
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from database.ia_filterdb import Media
 from database.users_chats_db import db
+from apscheduler.schedulers.background import BackgroundScheduler
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_STR, LOG_CHANNEL, PORT
 from utils import temp
 from typing import Union, Optional, AsyncGenerator
-from pyrogram import types, filters
+from pyrogram import types
 from Script import script
-from datetime import date, datetime
+from plugins import web_server
+from aiohttp import web
+from datetime import date, datetime 
 import pytz
-import shutil
 
-# Logging setup
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()]
-)
-
-logging.info(f"🔧 Python Version: {sys.version}")
-
-# Pyrogram Bot Class
 class Bot(Client):
     def __init__(self):
         super().__init__(
@@ -75,10 +69,22 @@ class Bot(Client):
                 yield message
                 current += 1
 
-# Initialize bot
+# Define the bot instance at the top to prevent NameError
 app = Bot()
 
-# Flask app
+# ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
+
+def ping_self():
+    url = "https://f-njat.onrender.com/alive"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            logging.info("Ping successful!")
+        else:
+            logging.error(f"Ping failed with status code {response.status_code}")
+    except Exception as e:
+        logging.error(f"Ping failed with exception: {e}")
+
 flask_app = Flask(__name__)
 
 @flask_app.route('/alive')
@@ -88,10 +94,10 @@ def alive():
 @flask_app.route('/webhook', methods=['POST'])
 def webhook():
     update = request.get_json()
-    if update and app:
-        logging.info(f"Received update: {update}")
+    if update and app:  # Ensure app exists before processing update
+        logging.info(f"Received update: {update}")  # Debugging
         app.process_update(update)
-    return "OK", 200
+    return "OK", 200  # Required response for Telegram
 
 def run_flask():
     try:
@@ -103,54 +109,15 @@ def run_flask():
         else:
             raise
 
-# ✅ These used to be scheduled — now converted to commands:
-
-def clear_cache_and_sessions():
-    folders_to_clear = ['.cache', '__pycache__', '.git']
-    for folder in folders_to_clear:
-        logging.info(f"Checking folder: {folder}")
-        if os.path.exists(folder):
-            try:
-                shutil.rmtree(folder)
-                logging.info(f"✅ Cleared folder: {folder}")
-            except Exception as e:
-                logging.error(f"❌ Error clearing {folder}: {e}")
-        else:
-            logging.warning(f"⚠️ Folder not found: {folder}")
-
-def self_ping():
-    try:
-        logging.info("🌐 Self-pinging...")
-        response = requests.get("https://f-njat.onrender.com", timeout=10)
-        if response.status_code == 200:
-            logging.info("✅ Ping successful")
-        else:
-            logging.warning(f"⚠️ Ping failed: {response.status_code}")
-    except Exception as e:
-        logging.error(f"❌ Ping error: {e}")
-
-# ✅ Add manual command to clear cache via Telegram
-@app.on_message(filters.command("clear_cache") & filters.user([LOG_CHANNEL]))
-async def clear_cache_command(_, message):
-    clear_cache_and_sessions()
-    await message.reply("✅ Cache folders cleared.")
-
-# ✅ Add manual command to trigger self-ping via Telegram
-@app.on_message(filters.command("self_ping") & filters.user([LOG_CHANNEL]))
-async def self_ping_command(_, message):
-    self_ping()
-    await message.reply("✅ Self-ping triggered.")
-
-# Main bot logic
 async def main():
     await app.start()
     await asyncio.Event().wait()
 
-if __name__ == "__main__":
-    # Start Flask in a thread
-    Thread(target=run_flask).start()
 
-    # Use consistent event loop
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(main())
+if __name__ == "__main__":
+    # Start Flask in a separate thread
+    Thread(target=run_flask).start()
+    
+    # Start the bot
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
