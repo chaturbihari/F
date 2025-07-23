@@ -59,11 +59,17 @@ class Database:
         await self.col.delete_many({'id': int(user_id)})
 
     async def get_banned(self):
-        users = self.col.find({'ban_status.is_banned': True})
-        chats = self.grp.find({'chat_status.is_disabled': True})
-        b_chats = [chat['id'] async for chat in chats]
-        b_users = [user['id'] async for user in users]
+        users_cursor = self.col.find({'ban_status.is_banned': True})
+        chats_cursor = self.grp.find({'chat_status.is_disabled': True})
+
+        users = await users_cursor.to_list(length=None)
+        chats = await chats_cursor.to_list(length=None)
+
+        b_users = [user['id'] for user in users]
+        b_chats = [chat['id'] for chat in chats]
+
         return b_users, b_chats
+
 
     async def add_chat(self, chat, title):
         await self.grp.insert_one(self.new_group(chat, title))
@@ -123,4 +129,5 @@ async def _init_db():
         db = Database(DATABASE_URI, DATABASE_NAME)
 
 # Automatically run _init_db at import time
-asyncio.get_event_loop().run_until_complete(_init_db())
+db = Database(DATABASE_URI, DATABASE_NAME)
+
