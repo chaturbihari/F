@@ -47,6 +47,10 @@ BUTTONS2 = {}
 SPELL_CHECK = {}
 # ENABLE_SHORTLINK = ""
 
+@app.on_message(filters.command("test") & filters.private)
+async def test_cmd(_, m):
+    await m.reply("✅ Bot received your command.")
+
 @Client.on_message((filters.group | filters.private) & filters.text & filters.incoming)
 async def give_filter(client, message):
     if message.chat.id != SUPPORT_CHAT_ID:
