@@ -12,7 +12,7 @@ from aiohttp import ClientSession
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from database.ia_filterdb import Media
-from database.users_chats_db import init_db, get_db
+from database.users_chats_db import db
 from apscheduler.schedulers.background import BackgroundScheduler
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_STR, LOG_CHANNEL, PORT
 from utils import temp
