@@ -12,7 +12,7 @@ from aiohttp import ClientSession
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from database.ia_filterdb import Media
-from database.users_chats_db import db
+from database.users_chats_db import init_db, db
 from apscheduler.schedulers.background import BackgroundScheduler
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_STR, LOG_CHANNEL, PORT
 from utils import temp
@@ -114,8 +114,10 @@ def run_flask():
             raise
 
 async def main():
+    await init_db()  # This must happen before db.get_banned()
     await app.start()
     await asyncio.Event().wait()
+
     
 # ========== clear.py logic merged here ==========
 def clear_cache_and_sessions():
