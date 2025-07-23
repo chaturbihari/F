@@ -109,26 +109,18 @@ def run_flask():
 
 
 async def main():
-    try:
-        await app.start()
-        logging.info("Bot started.")
-        await asyncio.Event().wait()
-    except Exception as e:
-        logging.error(f"Failed to start bot: {e}")
-
+    await app.start()
+    await asyncio.Event().wait()
 
 
 if __name__ == "__main__":
     # Start Flask in a separate thread.
     Thread(target=run_flask).start()
-
+    
     # Start the bot
-    import asyncio
-    asyncio.run(main())
-
-    # Start scheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(ping_self, "interval", minutes=1)
-    scheduler.start()
-
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+scheduler = BackgroundScheduler()
+scheduler.add_job(ping_self, "interval", minutes=1)
+scheduler.start()
 
