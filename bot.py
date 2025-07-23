@@ -17,7 +17,6 @@ from utils import temp
 from typing import Union, Optional, AsyncGenerator
 from pyrogram import types
 from Script import script
-from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
 
@@ -114,13 +113,15 @@ async def main():
 
 
 if __name__ == "__main__":
-    # Start Flask in a separate thread.
+    # Start Flask in a separate thread for uptime ping
     Thread(target=run_flask).start()
+
+    # Start the bot (this automatically loads plugins)
+    app.run()
     
-    # Start the bot
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-scheduler = BackgroundScheduler()
-scheduler.add_job(ping_self, "interval", minutes=1)
-scheduler.start()
+    # Optional: Start uptime ping scheduler AFTER bot starts
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(ping_self, "interval", minutes=1)
+    scheduler.start()
+
 
