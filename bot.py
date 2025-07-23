@@ -82,4 +82,9 @@ async def main():
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import uvicorn
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(app.start())
+    print("Bot started")
+    loop.run_until_complete(asyncio.Event().wait())  # Keeps bot alive
