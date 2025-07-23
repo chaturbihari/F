@@ -114,7 +114,6 @@ def run_flask():
             raise
 
 async def main():
-    await init_db()
     db = get_db()
     
     b_users, b_chats = await db.get_banned()
