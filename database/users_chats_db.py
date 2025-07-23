@@ -118,15 +118,6 @@ class Database:
         return (await self.db.command("dbstats"))['dataSize']
 
 
-# The magic: lazy singleton DB instance
-import asyncio
-
-db = None
-
-async def _init_db():
-    global db
-    if db is None:
-        db = Database(DATABASE_URI, DATABASE_NAME)
 
 # Automatically run _init_db at import time
 db = Database(DATABASE_URI, DATABASE_NAME)
