@@ -83,14 +83,13 @@ async def main():
     await app.run_polling()
 
 if __name__ == "__main__":
-    # Start optional uptime Flask server
+    # Start Flask uptime server
     Thread(target=run_flask).start()
 
-    # Start polling bot
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-
-    # Ping every 1 min (optional)
+    # Start bot
+    asyncio.run(main())
+    
+    # Start ping scheduler
     scheduler = BackgroundScheduler()
     scheduler.add_job(ping_self, "interval", minutes=1)
     scheduler.start()
