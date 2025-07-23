@@ -80,7 +80,9 @@ def ping_self():
 
 # Main function using polling (no webhook!)
 async def main():
-    await app.run_polling()
+    await app.start()
+    await asyncio.Event().wait()
+
 
 if __name__ == "__main__":
     # Start Flask uptime server
