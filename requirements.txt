@@ -34,3 +34,4 @@ itsdangerous==2.0.1
 python-Levenshtein
 APScheduler>=3.9.1
 pyromod
+uvicorn
