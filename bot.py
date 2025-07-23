@@ -76,7 +76,7 @@ app = Bot()
 # ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
 
 def ping_self():
-    url = "https://transparent-ribbon-target.glitch.me/alive"
+    url = "https://f-njat.onrender.com/alive"
     try:
         response = requests.get(url)
         if response.status_code == 200:
