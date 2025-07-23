@@ -1,6 +1,4 @@
-
 import logging
-import sys
 import logging.config
 import asyncio
 import os
@@ -22,17 +20,8 @@ from Script import script
 from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
+
 import pytz
-import shutil
-
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()]
-)
-
-logging.info(f"🔧 Python Version: {sys.version}")
 
 class Bot(Client):
     def __init__(self):
@@ -87,7 +76,7 @@ app = Bot()
 # ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
 
 def ping_self():
-    url = "https://newauto-15.onrender.com/alive"
+    url = "https://transparent-ribbon-target.glitch.me/alive"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -99,70 +88,39 @@ def ping_self():
 
 flask_app = Flask(__name__)
 
-@flask_app.route('/alive')
+@flask_app.route('/')
 def alive():
     return "I am alive!"
 
+@flask_app.route('/webhook', methods=['POST'])
+def webhook():
+    update = request.get_json()
+    if update and app:  # Ensure app exists before processing update
+        logging.info(f"Received update: {update}")  # Debugging
+        app.process_update(update)
+    return "OK", 200  # Required response for Telegram
+
 def run_flask():
+    port = int(os.environ.get("PORT", 5000))
     try:
-        flask_app.run(host='0.0.0.0', port=10002)
+        flask_app.run(host='0.0.0.0', port=port)
     except OSError as e:
-        if "Address already in use" in str(e):
-            logging.error("Port 10002 in use! Trying alternate port 5000...")
-            flask_app.run(host='0.0.0.0', port=5000)
-        else:
-            raise
+        logging.error(f"Flask failed to start: {e}")
+
 
 async def main():
-    b_users, b_chats = await db.get_banned()
-    print("Banned users:", b_users)
-    print("Disabled chats:", b_chats)
-
     await app.start()
     await asyncio.Event().wait()
 
 
-    
-# ========== clear.py logic merged here ==========
-def clear_cache_and_sessions():
-    folders_to_clear = ['.cache', '__pycache__', '.git']
-    for folder in folders_to_clear:
-        logging.info(f"Checking folder: {folder}")
-        if os.path.exists(folder):
-            try:
-                shutil.rmtree(folder)
-                logging.info(f"✅ Cleared folder: {folder}")
-            except Exception as e:
-                logging.error(f"❌ Error clearing {folder}: {e}")
-        else:
-            logging.warning(f"⚠️ Folder not found: {folder}")
-
-def self_ping():
-    while True:
-        try:
-            logging.info("🌐 Self-pinging...")
-            requests.get("https://f-njat.onrender.com")  # Update if needed
-            logging.info("✅ Ping successful")
-        except Exception as e:
-            logging.error(f"❌ Ping failed: {e}")
-        time.sleep(60)
-
-def start_clear_tasks():
-    # Start scheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(clear_cache_and_sessions, 'interval', minutes=60)
-    scheduler.start()
-
-    # Start self-ping
-    Thread(target=self_ping, daemon=True).start()
-
-# Start cache-clear + ping before starting bot
 if __name__ == "__main__":
-    # Clear + Ping Tasks
-    start_clear_tasks()
-
-    # Run Flask server in thread
+    # Start Flask in a separate thread.
     Thread(target=run_flask).start()
+    
+    # Start the bot
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+scheduler = BackgroundScheduler()
+scheduler.add_job(ping_self, "interval", minutes=1)
+scheduler.start()
 
-    # Run Bot
-    asyncio.run(main())
