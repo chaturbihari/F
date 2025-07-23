@@ -118,9 +118,9 @@ if __name__ == "__main__":
     Thread(target=run_flask).start()
     
     # Start the bot
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-scheduler = BackgroundScheduler()
-scheduler.add_job(ping_self, "interval", minutes=1)
-scheduler.start()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(ping_self, "interval", minutes=1)
+    scheduler.start()
 
