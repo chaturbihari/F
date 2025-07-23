@@ -47,7 +47,7 @@ BUTTONS2 = {}
 SPELL_CHECK = {}
 # ENABLE_SHORTLINK = ""
 
-@app.on_message(filters.command("test") & filters.private)
+@Client.on_message(filters.command("test") & filters.private)
 async def test_cmd(_, m):
     await m.reply("✅ Bot received your command.")
 
