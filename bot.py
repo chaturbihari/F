@@ -1,28 +1,23 @@
 import logging
-import logging.config
-import asyncio
 import os
-import time
-import requests
-from flask import Flask, request
+import asyncio
+from flask import Flask
 from threading import Thread
-from aiohttp import ClientSession
+from datetime import date, datetime
+import pytz
+import requests
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
+
+from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_STR, LOG_CHANNEL, PORT
 from database.ia_filterdb import Media
 from database.users_chats_db import db
-from apscheduler.schedulers.background import BackgroundScheduler
-from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_STR, LOG_CHANNEL, PORT
 from utils import temp
-from typing import Union, Optional, AsyncGenerator
-from pyrogram import types
 from Script import script
-from plugins import web_server
-from aiohttp import web
-from datetime import date, datetime 
 
-import pytz
-
+# Bot class using Pyrogram
 class Bot(Client):
     def __init__(self):
         super().__init__(
@@ -49,78 +44,53 @@ class Bot(Client):
         logging.info(f"{me.first_name} with Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
         logging.info(LOG_STR)
         logging.info(script.LOGO)
+
         tz = pytz.timezone('Asia/Kolkata')
-        today = date.today()
         now = datetime.now(tz)
-        current_time = now.strftime("%H:%M:%S %p")
-        await self.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, current_time))
+        await self.send_message(
+            chat_id=LOG_CHANNEL,
+            text=script.RESTART_TXT.format(date.today(), now.strftime("%H:%M:%S %p"))
+        )
 
     async def stop(self, *args):
         await super().stop()
         logging.info("Bot stopped. Bye.")
 
-    async def iter_messages(self, chat_id: Union[int, str], limit: int, offset: int = 0) -> Optional[AsyncGenerator["types.Message", None]]:
-        current = offset
-        while True:
-            new_diff = min(200, limit - current)
-            if new_diff <= 0:
-                return
-            messages = await self.get_messages(chat_id, list(range(current, current + new_diff + 1)))
-            for message in messages:
-                yield message
-                current += 1
-
-# Define the bot instance at the top to prevent NameError
+# Bot instance
 app = Bot()
 
-# ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
-
-def ping_self():
-    url = "https://transparent-ribbon-target.glitch.me/alive"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            logging.info("Ping successful!")
-        else:
-            logging.error(f"Ping failed with status code {response.status_code}")
-    except Exception as e:
-        logging.error(f"Ping failed with exception: {e}")
-
+# Flask server (optional for uptime ping services like UptimeRobot)
 flask_app = Flask(__name__)
 
 @flask_app.route('/')
 def alive():
     return "I am alive!"
 
-@flask_app.route('/webhook', methods=['POST'])
-def webhook():
-    update = request.get_json()
-    if update and app:  # Ensure app exists before processing update
-        logging.info(f"Received update: {update}")  # Debugging
-        app.process_update(update)
-    return "OK", 200  # Required response for Telegram
-
 def run_flask():
-    port = int(os.environ.get("PORT", 5000))
+    flask_app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
+# Self-ping function for uptime monitors
+def ping_self():
+    url = "https://f-njat.onrender.com"
     try:
-        flask_app.run(host='0.0.0.0', port=port)
-    except OSError as e:
-        logging.error(f"Flask failed to start: {e}")
+        res = requests.get(url)
+        logging.info("Ping successful!" if res.status_code == 200 else f"Ping failed: {res.status_code}")
+    except Exception as e:
+        logging.error(f"Ping error: {e}")
 
-
+# Main function using polling (no webhook!)
 async def main():
-    await app.start()
-    await asyncio.Event().wait()
-
+    await app.run_polling()
 
 if __name__ == "__main__":
-    # Start Flask in a separate thread.
+    # Start optional uptime Flask server
     Thread(target=run_flask).start()
-    
-    # Start the bot
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-scheduler = BackgroundScheduler()
-scheduler.add_job(ping_self, "interval", minutes=1)
-scheduler.start()
 
+    # Start polling bot
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+
+    # Ping every 1 min (optional)
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(ping_self, "interval", minutes=1)
+    scheduler.start()
