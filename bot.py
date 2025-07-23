@@ -115,14 +115,13 @@ def run_flask():
             raise
 
 async def main():
-    db = get_db()
-    
     b_users, b_chats = await db.get_banned()
     print("Banned users:", b_users)
     print("Disabled chats:", b_chats)
 
     await app.start()
     await asyncio.Event().wait()
+
 
     
 # ========== clear.py logic merged here ==========
