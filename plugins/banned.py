@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from utils import temp
 from pyrogram.types import Message
-from database.users_chats_db import db
+from database.users_chats_db import get_db
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from info import SUPPORT_CHAT
 db = get_db() 
