@@ -112,7 +112,7 @@ async def main():
     await app.start()
     print(">>> [MAIN] Pyrogram started")
 
-    db = get_db()
+    db = db()
     print(">>> [MAIN] Got DB instance")
 
     b_users, b_chats = await db.get_banned()
