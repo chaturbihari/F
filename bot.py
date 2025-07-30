@@ -20,7 +20,7 @@ from Script import script
 from aiohttp import web
 from datetime import date, datetime 
 import pytz
-
+db = db() 
 class Bot(Client):
     def __init__(self):
         super().__init__(
