@@ -22,7 +22,7 @@ import aiohttp
 from shortzy import Shortzy
 import http.client
 import json
-
+db = db() 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
