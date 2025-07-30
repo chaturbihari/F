@@ -107,9 +107,14 @@ def run_flask():
 
 
 async def main():
-    await app.start()
+    print("📡 Starting main...")
+    db = get_db()
+    print("⚙️ Getting banned users and chats...")
     b_users, b_chats = await db.get_banned()
+    print(f"🚫 Banned Users: {b_users}")
+    print(f"🚫 Banned Chats: {b_chats}")
     await asyncio.Event().wait()
+
 
 
 if __name__ == "__main__":
