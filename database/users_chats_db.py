@@ -142,4 +142,11 @@ class Database:
         return stats.get('dataSize', 0)
 
 
-db = Database(DATABASE_URI, DATABASE_NAME)
+_db = None
+
+def get_db():
+    global _db
+    if _db is None:
+        _db = Database(DATABASE_URI, DATABASE_NAME)
+    return _db
+
