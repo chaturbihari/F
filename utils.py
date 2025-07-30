@@ -15,13 +15,14 @@ import os
 from datetime import datetime, date
 import string
 from typing import List
-from database.users_chats_db import db
+from database.users_chats_db import get_db
 from bs4 import BeautifulSoup
 import requests
 import aiohttp
 from shortzy import Shortzy
 import http.client
 import json
+db = get_db()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
