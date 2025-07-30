@@ -20,7 +20,7 @@ import re, asyncio, os, sys
 import json
 import base64
 logger = logging.getLogger(__name__)
-
+db = db() 
 BATCH_FILES = {}
 
 @Client.on_message(filters.command("start"))
