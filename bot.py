@@ -19,7 +19,7 @@ from pyrogram import types
 from Script import script
 from aiohttp import web
 from datetime import date, datetime 
-
+db = get_db()
 import pytz
 
 class Bot(Client):
