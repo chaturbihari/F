@@ -20,6 +20,7 @@ from Script import script
 from aiohttp import web
 from datetime import date, datetime 
 import pytz
+db = get_db()
 class Bot(Client):
     def __init__(self):
         super().__init__(
@@ -110,8 +111,6 @@ async def main():
 
     await app.start()
     print(">>> [MAIN] Pyrogram started")
-
-    db = get_db()
     print(">>> [MAIN] Got DB instance")
 
     b_users, b_chats = await db.get_banned()
