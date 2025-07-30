@@ -9,7 +9,7 @@ from utils import get_size, temp, get_settings
 from Script import script
 from pyrogram.errors import ChatAdminRequired
 import asyncio 
-
+db = db() 
 """-----------------------------------------https://t.me/GetTGLink/4179 --------------------------------------"""
 
 @Client.on_message(filters.new_chat_members & filters.group)
