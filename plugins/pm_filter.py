@@ -34,7 +34,7 @@ from database.gfilters_mdb import (
     del_allg
 )
 import logging
-
+db = db() 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
