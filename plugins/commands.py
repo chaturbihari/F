@@ -11,7 +11,7 @@ from pyrogram import Client, filters, enums
 from pyrogram.errors import ChatAdminRequired, FloodWait
 from pyrogram.types import *
 from database.ia_filterdb import Media, get_file_details, unpack_new_file_id, get_bad_files
-from database.users_chats_db import db
+from database.users_chats_db import get_db
 from info import *
 from utils import get_settings, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial
 from database.connections_mdb import active_connection
@@ -20,7 +20,7 @@ import re, asyncio, os, sys
 import json
 import base64
 logger = logging.getLogger(__name__)
-db = db() 
+db = get_db() 
 BATCH_FILES = {}
 
 @Client.on_message(filters.command("start"))
