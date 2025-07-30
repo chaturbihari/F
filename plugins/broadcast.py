@@ -2,11 +2,11 @@
 from pyrogram import Client, filters
 import datetime
 import time
-from database.users_chats_db import db
+from database.users_chats_db import get_db
 from info import ADMINS
 from utils import broadcast_messages, broadcast_messages_group
 import asyncio
-db = db() 
+db = get_db() 
         
 @Client.on_message(filters.command("broadcast") & filters.user(ADMINS) & filters.reply)
 # https://t.me/GetTGLink/4178
