@@ -107,13 +107,22 @@ def run_flask():
 
 
 async def main():
-    print("📡 Starting main...")
-    db = db() 
-    print("⚙️ Getting banned users and chats...")
-    b_users, b_chats = await db.get_banned()
-    print(f"🚫 Banned Users: {b_users}")
-    print(f"🚫 Banned Chats: {b_chats}")
+    print("🟡 [main] Starting main function...")
+    
+    try:
+        db = db()
+        print("🟢 [main] Got DB instance:", db)
+
+        b_users, b_chats = await db.get_banned()
+        print("✅ [main] Got banned users and chats")
+        print("🚫 Users:", b_users)
+        print("🚫 Chats:", b_chats)
+    except Exception as e:
+        print("❌ [main] Exception:", e)
+
+    await app.start()
     await asyncio.Event().wait()
+
 
 
 
@@ -121,12 +130,13 @@ if __name__ == "__main__":
     # Start Flask in a separate thread for uptime ping
     Thread(target=run_flask).start()
 
-    # Start the bot (this automatically loads plugins)
-    app.run()
-    
+    # Start the bot properly using your async main
+    asyncio.run(main())
+
     # Optional: Start uptime ping scheduler AFTER bot starts
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(ping_self, "interval", minutes=1)
-    scheduler.start()
+    # scheduler = BackgroundScheduler()
+    # scheduler.add_job(ping_self, "interval", minutes=1)
+    # scheduler.start()
+
 
 
