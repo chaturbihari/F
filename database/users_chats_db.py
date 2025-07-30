@@ -144,7 +144,7 @@ class Database:
 
 _db = None
 
-def get_db():
+def db():
     global _db
     if _db is None:
         _db = Database(DATABASE_URI, DATABASE_NAME)
