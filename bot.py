@@ -20,7 +20,7 @@ from Script import script
 from aiohttp import web
 from datetime import date, datetime 
 import pytz
-db = db() 
+
 class Bot(Client):
     def __init__(self):
         super().__init__(
@@ -108,7 +108,7 @@ def run_flask():
 
 async def main():
     print("📡 Starting main...")
-    db = get_db()
+    db = db() 
     print("⚙️ Getting banned users and chats...")
     b_users, b_chats = await db.get_banned()
     print(f"🚫 Banned Users: {b_users}")
