@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 FROM python:3.10.8-slim-bullseye
 
 RUN apt update && apt upgrade -y && \
