@@ -10,17 +10,19 @@ from aiohttp import ClientSession
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from database.ia_filterdb import Media
-from database.users_chats_db import get_db
+from database.users_chats_db import db
 from apscheduler.schedulers.background import BackgroundScheduler
 from info import SESSION, API_ID, API_HASH, BOT_TOKEN, LOG_STR, LOG_CHANNEL, PORT
 from utils import temp
 from typing import Union, Optional, AsyncGenerator
 from pyrogram import types
 from Script import script
+from plugins import web_server
 from aiohttp import web
 from datetime import date, datetime 
+
 import pytz
-db = get_db()
+
 class Bot(Client):
     def __init__(self):
         super().__init__(
@@ -74,7 +76,7 @@ app = Bot()
 # ===============[ RENDER PORT UPTIME ISSUE FIXED ]================ #
 
 def ping_self():
-    url = "https://f-njat.onrender.com/alive"
+    url = "https://transparent-ribbon-target.glitch.me/alive"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -107,28 +109,18 @@ def run_flask():
 
 
 async def main():
-    print(">>> [MAIN] Bot starting...")
-
     await app.start()
-    print(">>> [MAIN] Pyrogram started")
-    print(">>> [MAIN] Got DB instance")
-
-    b_users, b_chats = await db.get_banned()
-    print(f">>> [MAIN] Got banned users: {b_users}, banned chats: {b_chats}")
-
-    # Start scheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(ping_self, "interval", minutes=1)
-    scheduler.start()
-    print(">>> [MAIN] Scheduler started")
-
     await asyncio.Event().wait()
 
 
-
 if __name__ == "__main__":
+    # Start Flask in a separate thread.
     Thread(target=run_flask).start()
-    asyncio.run(main())  # << THIS is the game changer
-
-
+    
+    # Start the bot
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+scheduler = BackgroundScheduler()
+scheduler.add_job(ping_self, "interval", minutes=1)
+scheduler.start()
 
