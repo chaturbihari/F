@@ -1,4 +1,4 @@
-FROM FROM python:3.10.8-slim-bullseye
+FROM python:3.10.8-slim-bullseye
 
 RUN apt update && apt upgrade -y && \
     apt install -y git dos2unix
